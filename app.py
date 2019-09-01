@@ -1,11 +1,23 @@
 from flask import Flask
-from domain import *
+from resoucers import *
+from flask import json
+from flask import request
+from bson import json_util
 app = Flask(__name__)
 
 
 @app.route('/all')
 def getAllMemoryLine():
-    return allMemoryLine()
+    memoryLines=[]
+    query = db.memoryLine.find()
+    for row in query:
+        memoryLines.append(row)
+        print(row)
+    
+    return app.response_class(
+        response= json.loads(json_util(memoryLines)),
+        mimetype="application/json"
+    )
 
 # pegar uma memory line especifica
 @app.route('/<id>')
@@ -15,7 +27,21 @@ def getSpecificMemoryLine(id):
 # inserir uma nova memorie line
 @app.route('/', methods = ['POST'])
 def insertMemoryLine():
-    return "1"
+    dadosPedido = request.json
+    db.memoryLine.insert_one({
+        "nomeMemorieline": dadosPedido["nomeMemorieline"],  
+        "participantes": dadosPedido["participantes"],
+        "moments": dadosPedido["moments"],
+        "dataCriacao": dadosPedido["dataCriacao"]
+    })
+    return "Sucess"
+
+# db.pastel.insert_one({"author": "Mike",
+#          "text": "My first blog post!",
+#          "tags": ["mongodb", "python", "pymongo"]
+#         })
+
+    
 
 # apagar uma nova memorie line
 @app.route('/<id>', methods = ['DELETE'])
@@ -51,4 +77,6 @@ def shareMemoryLine(id):
 @app.route('/<id>/invite/<iduser>')
 def inviteFriend(id,iduser):
     return id+iduser
+
+
 

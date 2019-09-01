@@ -1,9 +1,4 @@
-import pyodbc
-conn = pyodbc.connect(
-'Driver={SQL Server};'
-'Server=servercarbontower.database.windows.net;'
-'Database=carbontower;'
-'Integrated_Security=false;'
-'UID=tower;'
-'PWD=!Carbon6;'
-'Trusted_Connection=no;')
+import pymongo
+
+client = pymongo.MongoClient("mongodb+srv://remember_auth:hRmXnjYiziGTz3DP@cluster0-d2d9w.azure.mongodb.net/test?retryWrites=true&w=majority")
+db = client["remember-dev"]
