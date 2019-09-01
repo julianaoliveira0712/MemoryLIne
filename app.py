@@ -15,7 +15,7 @@ def getAllMemoryLine():
         print(row)
     
     return app.response_class(
-        response= json.loads(json_util(memoryLines)),
+        response= json.dumps(memoryLines, default = json_util.default),
         mimetype="application/json"
     )
 
