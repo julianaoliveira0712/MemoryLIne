@@ -65,26 +65,37 @@ def updateMemoryLine(id):
 @app.route('/<id>', methods = ['POST'])
 def insertmoment(id):
     query = db.memoryLine.find_one({ "_id" : ObjectId (id)})
-    db.query.update_many(
-    { },
-    { $set: { moment: new moments } }
-    )
-    
     moment = request.json
-    db.memoryLine.moment.insert_one({
+
+    print(query)
+    print(moment)
+
+    query["moments"].append({
         "tituloMoment": moment["tituloMoment"],  
         "idMoment": moment["idMoment"],
         "tipo": moment["tipo"],
         "reacao": moment["reacao"],
-        "comentarios": moment["comentario"],
+        "comentarios": moment["comentarios"],
         "legenda": moment["legenda"],
-        "dataCriacao": moment["data"],
-        "hora": hora["hora"]
+        "dataCriacao": moment["dataCriacao"],
+        "hora": moment["hora"]
     })
 
+    db.memoryLine.update_one(
+        {
+             "_id" : ObjectId (id)
+        },
+        {
+            "$set": {
+                "moments": query["moments"]
+            }
+        }
+    )
+        
     return app.response_class(
             response= json.dumps(query, default = json_util.default),
             mimetype="application/json"
+    )
 
 # deletar uma moment de uma memorie line
 @app.route('/<id>/<idmoment>', methods = ['DELETE'])
