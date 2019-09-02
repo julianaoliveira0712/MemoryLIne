@@ -2,9 +2,10 @@ from flask import Flask
 from resoucers import *
 from flask import json
 from flask import request
-from bson import json_util
+from bson import json_util, ObjectId
 app = Flask(__name__)
 
+# listar as memory line 
 
 @app.route('/all')
 def getAllMemoryLine():
@@ -22,7 +23,13 @@ def getAllMemoryLine():
 # pegar uma memory line especifica
 @app.route('/<id>')
 def getSpecificMemoryLine(id):
-    return "1"
+    query = db.memoryLine.find_one({ "_id" : ObjectId (id)})
+    
+    return app.response_class(
+        response= json.dumps(query, default = json_util.default),
+        mimetype="application/json"
+            
+    )
 
 # inserir uma nova memorie line
 @app.route('/', methods = ['POST'])
@@ -46,7 +53,8 @@ def insertMemoryLine():
 # apagar uma nova memorie line
 @app.route('/<id>', methods = ['DELETE'])
 def deleteMemoryLine(id):
-    return "1"
+    db.memoryLine.delete_many({ "_id" : ObjectId (id)})
+    return "Sucess"
 
 # atualizar nome de uma memorie line
 @app.route('/<id>', methods = ['PUT'])
@@ -54,9 +62,29 @@ def updateMemoryLine(id):
     return "1"
 
 # inserir uma moment numa memorie line
-@app.route('/<id>/<idmoment>', methods = ['POST'])
-def insertmoment(id,idmoment):
-    return "1"
+@app.route('/<id>', methods = ['POST'])
+def insertmoment(id):
+    query = db.memoryLine.find_one({ "_id" : ObjectId (id)})
+    db.query.update_many(
+    { },
+    { $set: { moment: new moments } }
+    )
+    
+    moment = request.json
+    db.memoryLine.moment.insert_one({
+        "tituloMoment": moment["tituloMoment"],  
+        "idMoment": moment["idMoment"],
+        "tipo": moment["tipo"],
+        "reacao": moment["reacao"],
+        "comentarios": moment["comentario"],
+        "legenda": moment["legenda"],
+        "dataCriacao": moment["data"],
+        "hora": hora["hora"]
+    })
+
+    return app.response_class(
+            response= json.dumps(query, default = json_util.default),
+            mimetype="application/json"
 
 # deletar uma moment de uma memorie line
 @app.route('/<id>/<idmoment>', methods = ['DELETE'])
@@ -77,6 +105,3 @@ def shareMemoryLine(id):
 @app.route('/<id>/invite/<iduser>')
 def inviteFriend(id,iduser):
     return id+iduser
-
-
-
