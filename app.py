@@ -9,18 +9,48 @@ app = Flask(__name__)
 # inserir uma nova memorie line
 @app.route('/', methods = ['POST'])
 def insertMemoryLine():
-    headerPedido = request.headers.get("user_id")
+    headerRequest = request.headers.get("user_id")
     db.memoryLine.insert_one({
-        "idOwner": headerPedido,  
+        "idOwner": headerRequest,  
         "participants": [],
         "creationDate": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
         "name": "maçã dourada"
     })
     response = {
-        "success":true,
-        "content":null,
-        "erroData"null
+        "success": True,
+        "content": None,
+        "erroData": None
     }
+    return app.response_class(
+        response = json.dumps(response, default = json_util.default),
+        mimetype="application/json"
+    )
+
+
+# atualizar nome de uma memorie line
+@app.route('/<id_memory_line>', methods = ['PUT'])
+def updateMemoryLine(id_memory_line):
+    headerRequest = request.headers.get("user_id")
+    name = request.json
+    db.memoryLine.find_one({ "_id" : ObjectId (id_memory_line)})
+
+    db.memoryLine.update_one(
+        {
+             "_id" : ObjectId (id_memory_line)
+        },
+        {
+            "$set": {
+                "name": name
+            }
+        }
+    )
+
+    response = {
+        "success": True,
+        "content": None,
+        "erroData": None
+    }
+    
     return app.response_class(
         response = json.dumps(response, default = json_util.default),
         mimetype="application/json"
@@ -64,10 +94,7 @@ def deleteMemoryLine(id):
     db.memoryLine.delete_many({ "_id" : ObjectId (id)})
     return "Sucess"
 
-# atualizar nome de uma memorie line
-@app.route('/<id>', methods = ['PUT'])
-def updateMemoryLine(id):
-    return "1"
+
 
 # inserir uma moment numa memorie line
 @app.route('/<id>', methods = ['POST'])
