@@ -3,10 +3,30 @@ from resoucers import *
 from flask import json
 from flask import request
 from bson import json_util, ObjectId
+from datetime import datetime
 app = Flask(__name__)
 
-# listar as memory line 
+# inserir uma nova memorie line
+@app.route('/', methods = ['POST'])
+def insertMemoryLine():
+    headerPedido = request.headers.get("user_id")
+    db.memoryLine.insert_one({
+        "idOwner": headerPedido,  
+        "participants": [],
+        "creationDate": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        "name": "maçã dourada"
+    })
+    response = {
+        "success":true,
+        "content":null,
+        "erroData"null
+    }
+    return app.response_class(
+        response = json.dumps(response, default = json_util.default),
+        mimetype="application/json"
+    )
 
+# listar as memory line 
 @app.route('/all')
 def getAllMemoryLine():
     memoryLines=[]
@@ -30,18 +50,6 @@ def getSpecificMemoryLine(id):
         mimetype="application/json"
             
     )
-
-# inserir uma nova memorie line
-@app.route('/', methods = ['POST'])
-def insertMemoryLine():
-    dadosPedido = request.json
-    db.memoryLine.insert_one({
-        "nomeMemorieline": dadosPedido["nomeMemorieline"],  
-        "participantes": dadosPedido["participantes"],
-        "moments": dadosPedido["moments"],
-        "dataCriacao": dadosPedido["dataCriacao"]
-    })
-    return "Sucess"
 
 # db.pastel.insert_one({"author": "Mike",
 #          "text": "My first blog post!",
