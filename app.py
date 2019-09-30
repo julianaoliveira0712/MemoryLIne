@@ -156,7 +156,7 @@ def getmemoryLine():
 
 # apagar uma nova memory line
 @app.route('/memory-line/<id_memoryLine>', methods = ['DELETE'])
-def deleteMemoryLine(id_moment):
+def deleteMemoryLine(id_memoryLine):
     headerRequest = request.headers.get("user_id")
     memoryLine = db.memoryLine.find_one({ "_id" : ObjectId (id_memoryLine)})
     response = {
