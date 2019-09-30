@@ -27,7 +27,7 @@ def insertMemoryLine():
     )
 
 
-# atualizar nome de uma memorie line
+#atualizar nome de uma memorie line
 @app.route('/<id_memory_line>', methods = ['PUT'])
 def updateMemoryLine(id_memory_line):
     headerRequest = request.headers.get("user_id")
@@ -64,78 +64,98 @@ def updateMemoryLine(id_memory_line):
             "erroData": None
         }
         
-        return app.response_class(
-            response = json.dumps(response, default = json_util.default),
-            mimetype="application/json"
-        )
+    return app.response_class(
+        response = json.dumps(response, default = json_util.default),
+        mimetype="application/json"
+    )
+
+
+    # for row in query:
+    #     id = str(row["_id"])
+    #     memoryLines.append({
+    #         "idMemoryLine": id,
+    #         "creationDate": 
+    #     })
+        
+    
+    # return app.response_class(
+    #     response= json.dumps(memoryLines, default = json_util.default),
+    #     mimetype="application/json"
+    # )
 
 # listar as memory line 
 @app.route('/all', methods = ['GET'])
 def getmemoryLine():
-    headerRequest =request.headers.get("user_id")
-    query = db.memoryLine.find()
-    memoryLineResponse = []
-    if(query == None):
-        response = {
-        "success": False,
-        "content": None,
-        "erroData": {
-        "typeError": "Unathourized",
-        "message": "reação ou usuário inexistente"
-        }
-    }
-    else:
-        for row in query:
-            memoryLineResponse.append({
-            "idOwner": query['idOwner'],  
-            "participants": query['participantes'],
-            "creationDate": query['creationDate'],
-            "name": query['name']
+    headerRequest = request.headers.get("user_id")
+    query = db.memoryLine.find({ "idOwner": headerRequest })
+    memoryLinePublic = []
+    memoryLinePrivate = []
+    for row in query:
+        id = str(row["_id"])
+        if(len(row['participants']) == 0):
+            memoryLinePrivate.append({
+                "idMemoryLine": id,
+                "idOwner": row['idOwner'],  
+                "quantityParticipants": len(row['participants']),
+                "creationDate": row['creationDate'],
+                "name": row['name']
             })
-        response = {
-            "success": True,
-            "content": memoryLineResponse,
-            "erroData": None
-        }
-        return app.response_class(
-            response = json.dumps(response, default = json_util.default),
-            mimetype="application/json"
-        )
+        else:
+            memoryLinePublic.append({
+                "idMemoryLine": id,
+                "idOwner": row['idOwner'],  
+                "quantityParticipants": len(row['participants']),
+                "creationDate": row['creationDate'],
+                "name": row['name']
+            })
 
-# pegar uma memory line especifica
-@app.route('id_memoryLine>', methods = ['GET'])
-def getSpecificMemoryLine(id_memoryLine):
-    headerRequest =request.headers.get("user_id")
-    query = db.memoryLine.find_one({ "_id" : ObjectId (id_memoryLine)})
-    if(query == None):
-        response = {
-        "success": False,
-        "content": None,
-        "erroData": {
-        "typeError": "Unathourized",
-        "message": "reação ou usuário inexistente"
-        }
+    response = {
+        "success": True,
+        "content": {
+            "private": memoryLinePrivate,
+            "public": memoryLinePublic
+        },
+        "erroData": None
     }
-    else:    
-        memory = {
-            "idOwner": query['idOwner'],  
-            "participants": query['participantes'],
-            "creationDate": query['creationDate'],
-            "name": query['name']
-        })
-            }
-        response = {
-            "success": True,
-            "content": memory,
-            "erroData": None
-        }
-        return app.response_class(
-            response = json.dumps(response, default = json_util.default),
-            mimetype="application/json"
-        )
+    return app.response_class(
+        response = json.dumps(response, default = json_util.default),
+        mimetype="application/json"
+    )
+
+# # pegar uma memory line especifica
+# @app.route('id_memoryLine>', methods = ['GET'])
+# def getSpecificMemoryLine(id_memoryLine):
+#     headerRequest =request.headers.get("user_id")
+#     query = db.memoryLine.find_one({ "_id" : ObjectId (id_memoryLine)})
+#     if(query == None):
+#         response = {
+#         "success": False,
+#         "content": None,
+#         "erroData": {
+#         "typeError": "Unathourized",
+#         "message": "reação ou usuário inexistente"
+#         }
+#     }
+#     else:    
+#         memory = {
+#             "idOwner": query['idOwner'],  
+#             "participants": query['participantes'],
+#             "creationDate": query['creationDate'],
+#             "name": query['name']
+#         })
+#             }
+#         response = {
+#             "success": True,
+#             "content": memory,
+#             "erroData": None
+#         }
+#         return app.response_class(
+#             response = json.dumps(response, default = json_util.default),
+#             mimetype="application/json"
+#         )
 
 # apagar uma nova memory line
-@app.route('<id_memoryLine>', methods = ['DELETE'])
+@app.route('/memory-line/<id_memoryLine>', methods = ['DELETE'])
 def deleteMemoryLine(id_moment):
     headerRequest = request.headers.get("user_id")
     memoryLine = db.memoryLine.find_one({ "_id" : ObjectId (id_memoryLine)})
@@ -166,15 +186,15 @@ def deleteMemoryLine(id_moment):
         ) 
 
 
-# compartilhar uma memory line
-@app.route('/<id>/share')
-def shareMemoryLine(id):
-    return "1"
+# # compartilhar uma memory line
+# @app.route('/<id>/share')
+# def shareMemoryLine(id):
+#     return "1"
 
-# convidar amigo para uma memory Line
-@app.route('/<id>/invite/<iduser>')
-def inviteFriend(id,iduser):
-    return id+iduser
+# # convidar amigo para uma memory Line
+# @app.route('/<id>/invite/<iduser>')
+# def inviteFriend(id,iduser):
+#     return id+iduser
 
 #deletar memoryLine (antigo)
 #@app.route('/<id>', methods = ['DELETE'])
